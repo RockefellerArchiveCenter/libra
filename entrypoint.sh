@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Apply database migrations
-echo "Apply database migrations"
-./wait-for-it.sh db:5432 -- python manage.py migrate
+
+./wait-for-it.sh db:5432 -- echo "Applying database migrations"
+python manage.py migrate
 
 #Start server
 echo "Starting server"

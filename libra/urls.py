@@ -14,8 +14,35 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url
+from django.urls import include, re_path
+from reports.views import HomeView, FixityReportViewSet, FormatReportViewSet
+from rest_framework import routers
+from rest_framework_jwt.views import obtain_jwt_token
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+router = routers.DefaultRouter()
+router.register(r'fixity', FixityReportViewSet, 'fixityreport')
+router.register(r'formats', FormatReportViewSet, 'formatreport')
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Libra API",
+      default_version='v1',
+      description="Test description",
+      contact=openapi.Contact(email="archive@rockarch.org"),
+      license=openapi.License(name="MIT License"),
+   ),
+   validators=['flex', 'ssv'],
+   public=True,
+)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    re_path(r'^$', HomeView.as_view(), name='home'),
+    url(r'^', include(router.urls)),
+    url(r'^get-token/', obtain_jwt_token),
+    url(r'^status/', include('health_check.api.urls')),
+    url(r'^admin/', admin.site.urls),
+    url(r'^schema(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=None), name='schema-json'),
 ]
