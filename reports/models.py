@@ -1,4 +1,9 @@
+from datetime import datetime
+from urllib.parse import urljoin
+
 from django.db import models
+
+from reports.clients import FedoraClient
 
 
 class Report(models.Model):
@@ -21,12 +26,28 @@ class ReportItem(models.Model):
 
 class FixityReport(Report):
 
+    def __init__(self):
+        report = FixityReport.objects.create(
+            process_status='started'
+        )
+        client = FedoraClient()
+
     def run(self):
         print("Running {}".format(self))
-        # get each file
-        # calculate checksum and compare to stored checksum
-        # if the checksums don't match, create a report item
-        # increment items_checked
+        for path in file_paths:  # not sure how we get file paths yet
+            fixity = client.check_fixity(path)
+            if not fixity.verdict:
+                FixityReportItem.objects.create(
+                    report=report,
+                    file=resp['file'],
+                    uri=path,
+                    stored_checksum=resp['stored_checksum'],
+                    calculated_checksum=resp['calculated_checksum'],
+                )
+            report.items_checked += 1
+        report.process_status = 'completed'
+        report.end_time = datetime.now()
+        report.save()
 
 
 class FixityReportItem(models.Model):
@@ -37,12 +58,26 @@ class FixityReportItem(models.Model):
 
 class FormatReport(Report):
 
+    def __init__(self):
+        report = FormatReport.objects.create(
+            process_status='started'
+        )
+        client = FedoraClient()
+
     def run(self):
         print("Running {}".format(self))
-        # get each file
-        # get format and uri
-        # create report item
-        # increment items checked
+        for path in file_paths:  # not sure how we get file paths yet
+            resp = client.get(path)
+            FormatReportItem.objects.create(
+                report=report,
+                file=resp['file'],
+                uri=path,
+                file_format=resp['format'],
+            )
+            report.items_checked += 1
+        report.process_status = 'completed'
+        report.end_time = datetime.now()
+        report.save()
 
 
 class FormatReportItem(models.Model):

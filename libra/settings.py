@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'health_check',
     'reports',
-    'clients',
 ]
 
 MIDDLEWARE = [
