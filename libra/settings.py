@@ -84,7 +84,7 @@ DATABASES = {
         'NAME': 'mysql',
         'USER': 'root',
         'PASSWORD': 'example',
-        'HOST': 'db',
+        'HOST': 'libra_db',
         'PORT': 3306,
     }
 }

@@ -1,16 +1,16 @@
 version: '3'
 
 services:
-  db:
+  libra_db:
     image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: example
-  web:
+  libra_web:
     build: .
     entrypoint: /code/entrypoint.sh
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "8003:8003"
     depends_on:
-      - db
+      - libra_db
