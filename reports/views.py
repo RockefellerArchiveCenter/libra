@@ -100,16 +100,13 @@ class FixityReportViewSet(viewsets.ModelViewSet):
     queryset = FixityReport.objects.all()
 
     def create(self, request):
+        start_time = datetime.now()
         if 'start_time' in request.POST:
-            report = FixityReport.objects.create(
-                process_status="queued",
-                start_time=request.POST['start_time'],
-            )
-        else:
-            report = FixityReport.objects.create(
-                process_status="started",
-                start_time=datetime.now(),
-            )
+            start_time = request.POST['start_time']
+        report = FixityReport.objects.create(
+            process_status="queued",
+            start_time=start_time,
+        )
         serializer = FixityReportSerializer(report, context={'request': request})
         return Response(serializer.data)
 
@@ -120,11 +117,13 @@ class FormatReportViewSet(viewsets.ModelViewSet):
     queryset = FormatReport.objects.all()
 
     def create(self, request):
+        start_time = datetime.now()
         if 'start_time' in request.POST:
-            report = FormatReport.objects.create(
-                process_status="queued",
-                start_time=request.POST['start_time'],
-            )
+            start_time = request.POST['start_time']
+        report = FormatReport.objects.create(
+            process_status="queued",
+            start_time=start_time,
+        )
         else:
             report = FormatReport.objects.create(
                 process_status="started",
