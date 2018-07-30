@@ -4,12 +4,13 @@ from structlog import wrap_logger
 from uuid import uuid4
 
 from django.shortcuts import render
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, View
 
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 
-from reports.models import FixityReport, FormatReport
+from reports.formatmixins import CSVResponseMixin
+from reports.models import FixityReport, FixityReportItem, FormatReport, FormatReportItem
 from reports.serializers import FixityReportSerializer, FormatReportSerializer
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,24 @@ class FixityReportListView(ListView):
         return context
 
 
+class FixityReportDataView(CSVResponseMixin, View):
+    model = FixityReport
+
+    def get(self, request, *args, **kwargs):
+        data = [('File', 'URI', 'Stored Checksum', 'Calculated Checksum', 'Time Checked',)]
+        items = FixityReportItem.objects.filter(report=kwargs['pk'])
+        print(items)
+        for item in items:
+            data.append((
+                item.file,
+                item.uri,
+                item.stored_checksum,
+                item.calculated_checksum,
+                item.created,
+                ))
+        return self.render_to_csv(data)
+
+
 class FormatReportListView(ListView):
     queryset = FormatReport.objects.all()
     template_name = 'reports/list.html'
@@ -57,6 +76,22 @@ class FormatReportListView(ListView):
         context['queued'] = FormatReport.objects.filter(process_status='queued').order_by('-start_time')
         context['completed'] = FormatReport.objects.filter(process_status='completed').order_by('-end_time')
         return context
+
+
+class FormatReportDataView(CSVResponseMixin, View):
+    model = FormatReport
+
+    def get(self, request, *args, **kwargs):
+        data = [('File', 'URI', 'Format', 'Time Checked',)]
+        items = FormatReportItem.objects.filter(report=kwargs['pk'])
+        for item in items:
+            data.append((
+                item.file,
+                item.uri,
+                item.file_format,
+                item.created,
+                ))
+        return self.render_to_csv(data)
 
 
 class FixityReportViewSet(viewsets.ModelViewSet):

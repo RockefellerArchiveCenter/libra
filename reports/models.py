@@ -51,7 +51,7 @@ class FixityReport(Report):
         self.save()
 
 
-class FixityReportItem(models.Model):
+class FixityReportItem(ReportItem):
     report = models.ForeignKey(FixityReport, on_delete=models.CASCADE, related_name="report")
     stored_checksum = models.CharField(max_length=512)
     calculated_checksum = models.CharField(max_length=512)
@@ -81,6 +81,6 @@ class FormatReport(Report):
         self.save()
 
 
-class FormatReportItem(models.Model):
+class FormatReportItem(ReportItem):
     report = models.ForeignKey(FormatReport, on_delete=models.CASCADE, related_name="report")
     file_format = models.CharField(max_length=256)

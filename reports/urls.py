@@ -14,10 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from reports.views import DashboardView, FixityReportListView, FormatReportListView
+from reports.views import DashboardView, FixityReportListView, FixityReportDataView, FormatReportListView, FormatReportDataView
 
 urlpatterns = [
     url(r'^$', DashboardView.as_view(), name='dashboard'),
     url(r'fixity/$', FixityReportListView.as_view(), name='fixity'),
+    url(r'fixity/(?P<pk>\d+)/csv/$', FixityReportDataView.as_view(), name='fixity-data'),
     url(r'formats/$', FormatReportListView.as_view(), name='formats'),
+    url(r'formats/(?P<pk>\d+)/csv/$', FormatReportDataView.as_view(), name='formats-data'),
 ]

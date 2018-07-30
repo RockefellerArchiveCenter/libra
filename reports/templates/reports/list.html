@@ -72,7 +72,11 @@
         {% for report in completed %}
           <div class="report">
             Finished {{report.end_time}} ({{report.items_checked}} items checked)
-              <a href="#" class="btn btn-sm btn-primary float-right">Download</a>
+            {% if report.get_type == 'format' %}
+              <a href="{% url 'formats-data' report.pk %}" class="download-report btn btn-sm btn-primary float-right">Download</a>
+            {% elif report.get_type == 'fixity' %}
+              <a href="{% url 'fixity-data' report.pk %}" class="download-report btn btn-sm btn-primary float-right">Download</a>
+            {% endif %}
           </div>
         {% endfor %}
         {% else %}
