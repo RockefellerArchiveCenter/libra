@@ -9,7 +9,7 @@
   <div class="col-6">
     <div class="card format_reports">
       <div class="card-header">
-        <h2>Format Reports <span class="status badge float-right badge-{% if format_reports.running > 1 %}success">Running{% else %}info">Idle{% endif %}</span></h2>
+        <h2>Format Reports <span class="status badge float-right badge-{% if format_reports.running > 0 %}success">Running{% else %}secondary">Idle{% endif %}</span></h2>
       </div>
       <div class="card-body">
         <div class="row">
@@ -36,7 +36,7 @@
   <div class="col-6">
     <div class="card fixity_reports">
       <div class="card-header">
-        <h2>Fixity Reports <span class="status badge float-right badge-{% if fixity_reports.running > 1 %}success">Running{% else %}info">Idle{% endif %}</span></h2>
+        <h2>Fixity Reports <span class="status badge float-right badge-{% if fixity_reports.running > 0 %}success">Running{% else %}secondary">Idle{% endif %}</span></h2>
       </div>
       <div class="card-body">
         <div class="row">
@@ -96,7 +96,7 @@ function incrementCount(report) {
 
 function updateStatus(report) {
   element = $(report).find('.status')[0]
-  $(element).removeClass('badge-info').addClass('badge-success');
+  $(element).removeClass('badge-secondary').addClass('badge-success');
   element.innerHTML = 'Running';
 }
 
