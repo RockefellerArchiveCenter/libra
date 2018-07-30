@@ -1,0 +1,130 @@
+{% extends 'reports/base.html' %}
+
+{% block h1_title %}
+  {% if object_list.0.get_type == 'format' %}
+    Format Reports
+  {% elif object_list.0.get_type == 'fixity' %}
+    Fixity Reports
+  {% else %}
+    Reports
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <h2>Running</h2>
+      </div>
+      <div class="card-body">
+        {% if running %}
+          {% for report in running %}
+            <div class="report">
+              Running since {{report.start_time}} ({{report.items_checked}} items checked)
+              {% if report.get_type == 'format' %}
+                <a href="#" class="cancel-report btn btn-sm btn-danger float-right" data-url="{% url 'formatreport-detail' report.pk %}">Cancel</a>
+              {% elif report.get_type == 'fixity' %}
+                <a href="#" class="cancel-report btn btn-sm btn-danger float-right" data-url="{% url 'fixityreport-detail' report.pk %}">Cancel</a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          No reports running
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <h2>Queued</h2>
+      </div>
+      <div class="card-body">
+        {% if queued %}
+        {% for report in queued %}
+          <div class="report">
+            Queued for {{report.start_time}}
+            {% if report.get_type == 'format' %}
+              <a href="#" class="delete-report btn btn-sm btn-danger float-right" data-url="{% url 'formatreport-detail' report.pk %}">Delete</a>
+            {% elif report.get_type == 'fixity' %}
+              <a href="#" class="delete-report btn btn-sm btn-danger float-right" data-url="{% url 'fixityreport-detail' report.pk %}">Delete</a>
+            {% endif %}
+          </div>
+        {% endfor %}
+        {% else %}
+          No reports scheduled
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <h2>Completed</h2>
+      </div>
+      <div class="card-body">
+        {% if completed %}
+        {% for report in completed %}
+          <div class="report">
+            Finished {{report.end_time}} ({{report.items_checked}} items checked)
+              <a href="#" class="btn btn-sm btn-primary float-right">Download</a>
+          </div>
+        {% endfor %}
+        {% else %}
+          No completed reports
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+
+  $(function () {
+
+    $(document).on("click", ".delete-report, .cancel-report", function(e) {
+        e.preventDefault();
+
+        var url = $(this).data('url');
+        var row = $(this).parents('.report');
+
+        $.ajax({
+          url: url,
+          type: 'DELETE',
+          success: function() {
+            displayMessage('success', 'Report deleted')
+            $(row).fadeOut().remove()
+          },
+          failure: function() {
+            displayMessage('danger', 'Error deleting report');
+          }
+        });
+
+    });
+});
+
+function displayMessage(type, message) {
+  $('#messages').empty()
+  $('#messages').append(
+    '<div class="row">\
+      <div class="col-md-12">\
+        <div class="alert alert-'+type+' alert-dismissible">\
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>\
+            <i class="icon fa fa-check"></i>'+message+'\
+        </div>\
+      </div>\
+    </div>').fadeIn(300);
+    setTimeout(function(){
+      $('#messages').fadeOut(1300);
+    }, 8000);
+}
+
+</script>
+{% endblock %}

@@ -1,20 +1,120 @@
 {% extends 'reports/base.html' %}
 
+{% block h1_title %}
+  Fedora Reports Dashboard
+{% endblock %}
+
 {% block content %}
-<div class="jumbotron col-md-6 offset-md-3 col-sm-10 offset-sm-1">
-  <div class="float-right">
-    <a class="btn btn-secondary btn-sm" href="status/">Service Status</a>
-    <a class="btn btn-secondary btn-sm" href="schema.json">OpenAPI Schema</a>
+<div class="row">
+  <div class="col-6">
+    <div class="card format_reports">
+      <div class="card-header">
+        <h2>Format Reports <span class="status badge float-right badge-{% if format_reports.running > 1 %}success">Running{% else %}info">Idle{% endif %}</span></h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="running col text-center">
+            <p class="number display-1 mb-0">{{format_reports.running}}</p>
+            <p class="label">running</p>
+          </div>
+          <div class="queued col text-center">
+            <p class="number display-1 mb-0">{{format_reports.queued}}</p>
+            <p class="label">queued</p>
+          </div>
+          <div class="completed col text-center">
+            <p class="number display-1 mb-0">{{format_reports.completed}}</p>
+            <p class="label">completed</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'formats' %}" class="btn btn-primary">View All</a>
+        <a href="#" class="btn btn-primary float-right start-report" data-url="{% url 'formatreport-list' %}">New Report</a>
+      </div>
+    </div>
   </div>
-  <h1 class="display-4">Libra</h1>
-  <p class="lead">A microservice to generate reports on files and activities in Fedora.</p>
-  <hr class="my-4">
-  <div>
-    <a class="btn btn-primary btn-lg mb-2 mr-2" href="{% url "fixityreport-list" %}">Fixity Reports</a>
-    <a class="btn btn-primary btn-lg mb-2 mr-2" href="{% url "formatreport-list" %}">Format Reports</a>
+  <div class="col-6">
+    <div class="card fixity_reports">
+      <div class="card-header">
+        <h2>Fixity Reports <span class="status badge float-right badge-{% if fixity_reports.running > 1 %}success">Running{% else %}info">Idle{% endif %}</span></h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="running col text-center">
+            <p class="number display-1 mb-0">{{fixity_reports.running}}</p>
+            <p class="label">running</p>
+          </div>
+          <div class="queued col text-center">
+            <p class="number display-1 mb-0">{{fixity_reports.queued}}</p>
+            <p class="label">queued</p>
+          </div>
+          <div class="completed col text-center">
+            <p class="number display-1 mb-0">{{fixity_reports.completed}}</p>
+            <p class="label">completed</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'fixity' %}" class="btn btn-primary">View All</a>
+        <a href="#" class="btn btn-primary float-right start-report" data-url="{% url 'fixityreport-list' %}">New Report</a>
+      </div>
+    </div>
   </div>
 </div>
-<div class="fixed-bottom bg-light">
-  <p class="text-center mt-1 mb-1"><small>Image from <em>Kitab al-Bulhān (Book of Wonders)</em> by Abd al-Hasan Al-Isfahani, 1382-1410.</small></p>
-</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+
+  $(function () {
+
+    $(document).on("click", ".start-report", function(e) {
+        e.preventDefault();
+
+        var url = $(this).data('url');
+        var parent = $(this).parents('.card');
+
+        $.post({
+          url: url,
+          success: function() {
+            incrementCount(parent);
+            updateStatus(parent)
+          },
+          failure: function() {
+            displayMessage('danger', 'Error creating report');
+          }
+        });
+
+    });
+});
+
+function incrementCount(report) {
+    number = $(report).find('.running .number')[0].innerHTML;
+    number++;
+    $(report).find('.running .number')[0].innerHTML = number;
+}
+
+function updateStatus(report) {
+  element = $(report).find('.status')[0]
+  $(element).removeClass('badge-info').addClass('badge-success');
+  element.innerHTML = 'Running';
+}
+
+function displayMessage(type, message) {
+  $('#messages').empty()
+  $('#messages').append(
+    '<div class="row">\
+      <div class="col-md-12">\
+        <div class="alert alert-'+type+' alert-dismissible">\
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>\
+            <i class="icon fa fa-check"></i>'+message+'\
+        </div>\
+      </div>\
+    </div>').fadeIn(300);
+    setTimeout(function(){
+      $('#messages').fadeOut(1300);
+    }, 8000);
+}
+
+</script>
 {% endblock %}

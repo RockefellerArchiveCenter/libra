@@ -7,7 +7,8 @@ from reports.clients import FedoraClient
 
 
 class Report(models.Model):
-    start_time = models.DateTimeField(auto_now_add=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+    start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     PROCESS_STATUS_CHOICES = (
         ("queued", "Report queued"),
@@ -26,28 +27,28 @@ class ReportItem(models.Model):
 
 class FixityReport(Report):
 
-    def __init__(self):
-        report = FixityReport.objects.create(
-            process_status='started'
-        )
-        client = FedoraClient()
+    def get_type(self): return 'fixity'
 
     def run(self):
+        client = FedoraClient()
         print("Running {}".format(self))
+        self.process_status='started'
+        self.start_time=datetime.now()
+        self.save()
         for path in file_paths:  # not sure how we get file paths yet
             fixity = client.check_fixity(path)
             if not fixity.verdict:
                 FixityReportItem.objects.create(
-                    report=report,
+                    report=self,
                     file=resp['file'],
                     uri=path,
                     stored_checksum=resp['stored_checksum'],
                     calculated_checksum=resp['calculated_checksum'],
                 )
-            report.items_checked += 1
-        report.process_status = 'completed'
-        report.end_time = datetime.now()
-        report.save()
+            self.items_checked += 1
+        self.process_status = 'completed'
+        self.end_time = datetime.now()
+        self.save()
 
 
 class FixityReportItem(models.Model):
@@ -58,26 +59,26 @@ class FixityReportItem(models.Model):
 
 class FormatReport(Report):
 
-    def __init__(self):
-        report = FormatReport.objects.create(
-            process_status='started'
-        )
-        client = FedoraClient()
+    def get_type(self): return 'format'
 
     def run(self):
+        client = FedoraClient()
         print("Running {}".format(self))
+        self.process_status='started'
+        self.start_time=datetime.now()
+        self.save()
         for path in file_paths:  # not sure how we get file paths yet
             resp = client.get(path)
             FormatReportItem.objects.create(
-                report=report,
+                report=self,
                 file=resp['file'],
                 uri=path,
                 file_format=resp['format'],
             )
-            report.items_checked += 1
-        report.process_status = 'completed'
-        report.end_time = datetime.now()
-        report.save()
+            self.items_checked += 1
+        self.process_status = 'completed'
+        self.end_time = datetime.now()
+        self.save()
 
 
 class FormatReportItem(models.Model):

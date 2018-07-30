@@ -15,8 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url
-from django.urls import include, re_path
-from reports.views import HomeView, FixityReportViewSet, FormatReportViewSet
+from django.urls import include, path, re_path
+from reports.views import FixityReportViewSet, FormatReportViewSet
 from rest_framework import routers
 from rest_framework_jwt.views import obtain_jwt_token
 from drf_yasg.views import get_schema_view
@@ -39,8 +39,8 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    re_path(r'^$', HomeView.as_view(), name='home'),
     url(r'^', include(router.urls)),
+    url(r'^reports/', include('reports.urls')),
     url(r'^get-token/', obtain_jwt_token),
     url(r'^status/', include('health_check.api.urls')),
     url(r'^admin/', admin.site.urls),
