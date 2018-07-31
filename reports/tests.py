@@ -46,6 +46,7 @@ class ReportTest(TestCase):
         self.assertEqual(len(FormatReport.objects.all()), self.format_report_count, "Wrong number of format reports created")
         for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
             for report in report_type:
+                print(report.__dict__)
                 self.assertEqual(report.process_status, 'queued', "Report process status not correctly set")
                 self.assertIsNot(report.start_time, False, "Report start time not added")
 
@@ -73,13 +74,12 @@ class ReportTest(TestCase):
 
     def run_reports(self):
         print('*** Running Reports ***')
-        with reports_vcr.use_cassette('run_reports.json'):
-            RunReports().do()
-            for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
-                for report in report_type:
-                    self.assertEqual(report.process_status, 'completed', 'Report was not completed')
-                    self.assertNotEqual(report.start_time, False, 'Start time not added')
-                    self.assertNotEqual(report.end_time, False, 'End time not added')
+        RunReports().do()
+        for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
+            for report in report_type:
+                self.assertEqual(report.process_status, 'completed', 'Report was not completed')
+                self.assertNotEqual(report.start_time, None, 'Start time not added')
+                self.assertNotEqual(report.end_time, None, 'End time not added')
 
     def delete_reports(self):
         print('*** Deleting Reports ***')
