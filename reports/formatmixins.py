@@ -5,7 +5,7 @@ from django.http import HttpResponse
 
 
 class CSVResponseMixin(object):
-    csv_filename = 'transfers-{}.csv'.format(datetime.datetime.now())
+    csv_filename = 'report-{}.csv'.format(datetime.datetime.now())
 
     def get_csv_filename(self):
         return self.csv_filename

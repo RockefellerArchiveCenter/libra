@@ -105,7 +105,7 @@ class FixityReportViewSet(viewsets.ModelViewSet):
             start_time = request.POST['start_time']
         report = FixityReport.objects.create(
             process_status="queued",
-            start_time=start_time,
+            queued_time=start_time,
         )
         serializer = FixityReportSerializer(report, context={'request': request})
         return Response(serializer.data)
@@ -122,12 +122,7 @@ class FormatReportViewSet(viewsets.ModelViewSet):
             start_time = request.POST['start_time']
         report = FormatReport.objects.create(
             process_status="queued",
-            start_time=start_time,
+            queued_time=start_time,
         )
-        else:
-            report = FormatReport.objects.create(
-                process_status="started",
-                start_time=datetime.now(),
-            )
         serializer = FormatReportSerializer(report, context={'request': request})
         return Response(serializer.data)

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cron',
     'rest_framework',
     'drf_yasg',
     'health_check',
@@ -134,6 +135,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+CRON_CLASSES = [
+    "reports.cron.RunReports",
+]
 
 structlog.configure(
     processors=[
