@@ -29,7 +29,7 @@
       </div>
       <div class="card-footer">
         <a href="{% url 'formats' %}" class="btn btn-primary">View All</a>
-        <a href="#" class="btn btn-primary float-right start-report" data-url="{% url 'formatreport-list' %}">New Report</a>
+        <a href="#" class="btn btn-primary float-right start-report" data-url="{% url 'formatreport-list' %}">Queue New Report</a>
       </div>
     </div>
   </div>
@@ -56,7 +56,7 @@
       </div>
       <div class="card-footer">
         <a href="{% url 'fixity' %}" class="btn btn-primary">View All</a>
-        <a href="#" class="btn btn-primary float-right start-report" data-url="{% url 'fixityreport-list' %}">New Report</a>
+        <a href="#" class="btn btn-primary float-right start-report" data-url="{% url 'fixityreport-list' %}">Queue New Report</a>
       </div>
     </div>
   </div>
@@ -78,7 +78,6 @@
           url: url,
           success: function() {
             incrementCount(parent);
-            updateStatus(parent)
           },
           failure: function() {
             displayMessage('danger', 'Error creating report');
@@ -89,15 +88,9 @@
 });
 
 function incrementCount(report) {
-    number = $(report).find('.running .number')[0].innerHTML;
+    number = $(report).find('.queued .number')[0].innerHTML;
     number++;
-    $(report).find('.running .number')[0].innerHTML = number;
-}
-
-function updateStatus(report) {
-  element = $(report).find('.status')[0]
-  $(element).removeClass('badge-secondary').addClass('badge-success');
-  element.innerHTML = 'Running';
+    $(report).find('.queued .number')[0].innerHTML = number;
 }
 
 function displayMessage(type, message) {
