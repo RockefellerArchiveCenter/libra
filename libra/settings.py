@@ -81,12 +81,11 @@ WSGI_APPLICATION = 'libra.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mysql',
-        'USER': 'root',
-        'PASSWORD': 'example',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
         'HOST': 'libra_db',
-        'PORT': 3306,
+        'PORT': 5432,
     }
 }
 

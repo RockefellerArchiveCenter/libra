@@ -46,7 +46,6 @@ class ReportTest(TestCase):
         self.assertEqual(len(FormatReport.objects.all()), self.format_report_count, "Wrong number of format reports created")
         for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
             for report in report_type:
-                print(report.__dict__)
                 self.assertEqual(report.process_status, 'queued', "Report process status not correctly set")
                 self.assertIsNot(report.start_time, False, "Report start time not added")
 

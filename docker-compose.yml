@@ -2,9 +2,7 @@ version: '3'
 
 services:
   libra_db:
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: example
+    image: postgres:10.4
   libra_web:
     build: .
     entrypoint: /code/entrypoint.sh
