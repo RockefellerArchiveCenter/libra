@@ -1,7 +1,7 @@
-from datetime import datetime
 from urllib.parse import urljoin
 
 from django.db import models
+from django.utils import timezone
 
 from reports.clients import FedoraClient
 
@@ -34,7 +34,7 @@ class FixityReport(Report):
         # client = FedoraClient()
         print("Running {}".format(self))
         self.process_status = 'started'
-        self.start_time = datetime.now()
+        self.start_time = timezone.now()
         self.save()
         # for path in file_paths:  # not sure how we get file paths yet
             # fixity = client.check_fixity(path)
@@ -48,7 +48,7 @@ class FixityReport(Report):
             #     )
             # self.items_checked += 1
         self.process_status = 'completed'
-        self.end_time = datetime.now()
+        self.end_time = timezone.now()
         self.save()
 
 
@@ -66,7 +66,7 @@ class FormatReport(Report):
         # client = FedoraClient()
         print("Running {}".format(self))
         self.process_status = 'started'
-        self.start_time = datetime.now()
+        self.start_time = timezone.now()
         self.save()
         # for path in file_paths:  # not sure how we get file paths yet
         #     resp = client.get(path)
@@ -78,7 +78,7 @@ class FormatReport(Report):
         #     )
         #     self.items_checked += 1
         self.process_status = 'completed'
-        self.end_time = datetime.now()
+        self.end_time = timezone.now()
         self.save()
 
 

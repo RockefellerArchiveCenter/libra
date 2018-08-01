@@ -1,6 +1,7 @@
 # libra
 A microservice to generate reports on files and activities in Fedora.
 
+[![Build Status](https://travis-ci.org/RockefellerArchiveCenter/libra.svg?branch=master)](https://travis-ci.org/RockefellerArchiveCenter/libra)
 
 ## Installation
 

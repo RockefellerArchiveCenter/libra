@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 from django_cron import CronJobBase, Schedule
 
@@ -12,10 +12,10 @@ class RunReports(CronJobBase):
     code = 'transfers.discover_transfers'
 
     def do(self):
-        current_time = datetime.now()
+        current_time = timezone.now()
         for report_type in [
-            FixityReport.objects.filter(process_status='queued', start_time__lte=current_time),
-            FormatReport.objects.filter(process_status='queued', start_time__lte=current_time)
+            FixityReport.objects.filter(process_status='queued', queued_time__lte=current_time),
+            FormatReport.objects.filter(process_status='queued', queued_time__lte=current_time)
         ]:
             for report in report_type:
                 report.run()

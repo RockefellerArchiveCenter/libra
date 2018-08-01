@@ -1,9 +1,9 @@
-from datetime import datetime
 import logging
 from structlog import wrap_logger
 from uuid import uuid4
 
 from django.shortcuts import render
+from django.utils import timezone
 from django.views.generic import ListView, TemplateView, View
 
 from rest_framework import viewsets, generics, status
@@ -100,7 +100,7 @@ class FixityReportViewSet(viewsets.ModelViewSet):
     queryset = FixityReport.objects.all()
 
     def create(self, request):
-        start_time = datetime.now()
+        start_time = timezone.now()
         if 'start_time' in request.POST:
             start_time = request.POST['start_time']
         report = FixityReport.objects.create(
@@ -117,7 +117,7 @@ class FormatReportViewSet(viewsets.ModelViewSet):
     queryset = FormatReport.objects.all()
 
     def create(self, request):
-        start_time = datetime.now()
+        start_time = timezone.now()
         if 'start_time' in request.POST:
             start_time = request.POST['start_time']
         report = FormatReport.objects.create(
