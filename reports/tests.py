@@ -15,7 +15,7 @@ from reports.views import FixityReportViewSet, FormatReportViewSet
 reports_vcr = vcr.VCR(
     serializer='yaml',
     cassette_library_dir='fixtures/cassettes',
-    record_mode='append',
+    record_mode='once',
     match_on=['path', 'method'],
     filter_query_parameters=['username', 'password'],
     filter_headers=['Authorization'],
@@ -95,7 +95,7 @@ class ReportTest(TestCase):
         self.assertEqual(len(FixityReport.objects.all()), self.fixity_report_count-1, "Wrong number of fixity reports created")
         self.assertEqual(len(FormatReport.objects.all()), self.format_report_count-1, "Wrong number of format reports created")
 
-    def test_components(self):
+    def test_reports(self):
         self.create_reports()
         self.create_report_items()
         self.run_reports()
