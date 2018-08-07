@@ -10,11 +10,10 @@ class FixityReportItemSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class FixityReportSerializer(serializers.HyperlinkedModelSerializer):
-    errors = FixityReportItemSerializer(source="report", many=True, read_only=True)
 
     class Meta:
         model = FixityReport
-        fields = ('url', 'created_time', 'start_time', 'end_time', 'process_status', 'items_checked', 'errors')
+        fields = ('url', 'created_time', 'start_time', 'end_time', 'process_status', 'items_checked',)
 
 
 class FormatReportItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -25,8 +24,7 @@ class FormatReportItemSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class FormatReportSerializer(serializers.HyperlinkedModelSerializer):
-    files = FormatReportItemSerializer(source="report", many=True, read_only=True)
 
     class Meta:
         model = FormatReport
-        fields = ('url', 'created_time', 'start_time', 'end_time', 'process_status', 'items_checked', 'files')
+        fields = ('url', 'created_time', 'start_time', 'end_time', 'process_status', 'items_checked')

@@ -52,15 +52,14 @@ class FixityReportDataView(CSVResponseMixin, View):
     model = FixityReport
 
     def get(self, request, *args, **kwargs):
-        data = [('File', 'URI', 'Stored Checksum', 'Calculated Checksum', 'Time Checked',)]
+        data = [('File', 'URI', 'Fixity Verdict', 'Time Checked',)]
         items = FixityReportItem.objects.filter(report=kwargs['pk'])
         print(items)
         for item in items:
             data.append((
                 item.file,
                 item.uri,
-                item.stored_checksum,
-                item.calculated_checksum,
+                item.verdict,
                 item.created,
                 ))
         return self.render_to_csv(data)
@@ -103,6 +102,7 @@ class FixityReportViewSet(viewsets.ModelViewSet):
         start_time = timezone.now()
         if 'start_time' in request.POST:
             start_time = request.POST['start_time']
+        print(start_time)
         report = FixityReport.objects.create(
             process_status="queued",
             queued_time=start_time,

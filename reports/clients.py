@@ -37,7 +37,7 @@ class FedoraClient(object):
             self.log.error("Could not retrieve resource from Fedora")
         else:
             self.log.debug("Retrieved resource from Fedora")
-        return json.loads(resp.data)[0]
+        return resp
 
     def create_resource(self, data):
         self.log = self.log.bind(request_id=str(uuid4()))

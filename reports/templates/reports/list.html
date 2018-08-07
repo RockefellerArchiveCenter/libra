@@ -45,7 +45,7 @@
         {% if queued %}
         {% for report in queued %}
           <div class="report">
-            Queued for {{report.start_time}}
+            Queued for {{report.queued_time}}
             {% if report.get_type == 'format' %}
               <a href="#" class="delete-report btn btn-sm btn-danger float-right" data-url="{% url 'formatreport-detail' report.pk %}">Delete</a>
             {% elif report.get_type == 'fixity' %}

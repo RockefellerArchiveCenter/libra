@@ -3,6 +3,8 @@ from urllib.parse import urljoin
 from django.db import models
 from django.utils import timezone
 
+from libra import config as CF
+
 from reports.clients import FedoraClient
 
 
@@ -30,23 +32,29 @@ class FixityReport(Report):
 
     def get_type(self): return 'fixity'
 
+    def process_children(self, resources):
+        for r in resources:
+            if r.__class__.__name__ == 'NonRDFSource':
+                print("Creating report item for {}".format(r.uri))
+                fixity = self.client.check_fixity(r.uri)
+                FixityReportItem.objects.create(
+                    report=self,
+                    verdict=fixity['verdict'],
+                    uri=r.uri,
+                )
+                self.items_checked += 1
+            if len(r.children()) > 0:
+                self.process_children(r.children(as_resources=True))
+
     def run(self):
-        # client = FedoraClient()
+        self.client = FedoraClient()
         print("Running {}".format(self))
         self.process_status = 'started'
         self.start_time = timezone.now()
         self.save()
-        # for path in file_paths:  # not sure how we get file paths yet
-            # fixity = client.check_fixity(path)
-            # if not fixity.verdict:
-            #     FixityReportItem.objects.create(
-            #         report=self,
-            #         file=resp['file'],
-            #         uri=path,
-            #         stored_checksum=resp['stored_checksum'],
-            #         calculated_checksum=resp['calculated_checksum'],
-            #     )
-            # self.items_checked += 1
+        base_resource = self.client.get_resource(CF.FEDORA['baseurl'])
+        children = base_resource.children(as_resources=True)
+        self.process_children(children)
         self.process_status = 'completed'
         self.end_time = timezone.now()
         self.save()
@@ -54,29 +62,35 @@ class FixityReport(Report):
 
 class FixityReportItem(ReportItem):
     report = models.ForeignKey(FixityReport, on_delete=models.CASCADE, related_name="report")
-    stored_checksum = models.CharField(max_length=512)
-    calculated_checksum = models.CharField(max_length=512)
+    verdict = models.CharField(max_length=10)
 
 
 class FormatReport(Report):
 
     def get_type(self): return 'format'
 
+    def process_children(self, resources):
+        for r in resources:
+            if r.__class__.__name__ == 'NonRDFSource':
+                print("Creating report item for {}".format(r.uri))
+                FormatReportItem.objects.create(
+                    report=self,
+                    uri=r.uri,
+                    file_format=r.binary.mimetype,
+                )
+                self.items_checked += 1
+        if len(r.children()) > 0:
+            self.process_children(r.children(as_resources=True))
+
     def run(self):
-        # client = FedoraClient()
+        self.client = FedoraClient()
         print("Running {}".format(self))
         self.process_status = 'started'
         self.start_time = timezone.now()
         self.save()
-        # for path in file_paths:  # not sure how we get file paths yet
-        #     resp = client.get(path)
-        #     FormatReportItem.objects.create(
-        #         report=self,
-        #         file=resp['file'],
-        #         uri=path,
-        #         file_format=resp['format'],
-        #     )
-        #     self.items_checked += 1
+        base_resource = self.client.get_resource(CF.FEDORA['baseurl'])
+        children = base_resource.children(as_resources=True)
+        self.process_children(children)
         self.process_status = 'completed'
         self.end_time = timezone.now()
         self.save()

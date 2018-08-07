@@ -13,12 +13,12 @@ from reports.models import FixityReport, FormatReport, FixityReportItem, FormatR
 from reports.views import FixityReportViewSet, FormatReportViewSet
 
 reports_vcr = vcr.VCR(
-    serializer='json',
+    serializer='yaml',
     cassette_library_dir='fixtures/cassettes',
-    record_mode='once',
+    record_mode='append',
     match_on=['path', 'method'],
     filter_query_parameters=['username', 'password'],
-    filter_headers=['Authorization', 'X-ArchivesSpace-Session'],
+    filter_headers=['Authorization'],
 )
 
 
@@ -65,15 +65,15 @@ class ReportTest(TestCase):
                 report=fixity_report,
                 file=''.join(random.choices(string.ascii_letters + string.digits, k=25)),
                 uri=''.join(random.choices(string.ascii_letters + string.digits, k=20)),
-                stored_checksum=''.join(random.choices(string.ascii_letters + string.digits, k=256)),
-                calculated_checksum=''.join(random.choices(string.ascii_letters + string.digits, k=256)),
+                verdict=random.choice([True, False]),
             )
         self.assertEqual(len(FixityReport.objects.all()), self.fixity_report_count, "Wrong number of fixity reports created")
         self.assertEqual(len(FormatReport.objects.all()), self.format_report_count, "Wrong number of format reports created")
 
     def run_reports(self):
         print('*** Running Reports ***')
-        RunReports().do()
+        with reports_vcr.use_cassette('run_reports.yml'):
+            RunReports().do()
         for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
             for report in report_type:
                 self.assertEqual(report.process_status, 'completed', 'Report was not completed')
