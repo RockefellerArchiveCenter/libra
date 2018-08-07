@@ -15,7 +15,7 @@ from reports.views import FixityReportViewSet, FormatReportViewSet
 reports_vcr = vcr.VCR(
     serializer='yaml',
     cassette_library_dir='fixtures/cassettes',
-    record_mode='append',
+    record_mode='once',
     match_on=['path', 'method'],
     filter_query_parameters=['username', 'password'],
     filter_headers=['Authorization'],
