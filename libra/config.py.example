@@ -1,5 +1,5 @@
 FEDORA = {
-    "baseurl": "http://fedora:8080/fedora/rest",
+    "baseurl": "http://fedora:8080/fedora/rest/",
     "username": "admin",
     "password": "admin",
 }

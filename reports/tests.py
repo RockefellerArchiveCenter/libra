@@ -95,7 +95,7 @@ class ReportTest(TestCase):
         self.assertEqual(len(FixityReport.objects.all()), self.fixity_report_count-1, "Wrong number of fixity reports created")
         self.assertEqual(len(FormatReport.objects.all()), self.format_report_count-1, "Wrong number of format reports created")
 
-    def test_components(self):
+    def test_reports(self):
         self.create_reports()
         self.create_report_items()
         self.run_reports()
