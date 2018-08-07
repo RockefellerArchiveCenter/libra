@@ -38,38 +38,3 @@ class FedoraClient(object):
         else:
             self.log.debug("Retrieved resource from Fedora")
         return resp
-
-    def create_resource(self, data):
-        self.log = self.log.bind(request_id=str(uuid4()))
-        resource = fcrepo.BasicContainer(self.client)
-        # container.add_triple(foo.rdf.prefixes.dc.subject, 'minty')
-        # consider specifying URI
-        if resource.create():
-            self.log.debug("Created resource in Fedora", object=resource.uri_as_string())
-            return resource.uri_as_string()
-        self.log.error("Could not create resource in Fedora")
-        return False
-
-    def update_resource(self, data, identifier):
-        self.log = self.log.bind(request_id=str(uuid4()), object=identifier)
-        resource = self.client.get_resource(identifier)
-        # component.add_triple(foo.rdf.prefixes.dc.subject, 'minty')
-        if resource.update():
-            self.log.debug("Updated resource in Fedora")
-            return True
-        self.log.error("Could not update resource in Fedora")
-        return False
-
-    def delete_resource(self, identifier):
-        self.log = self.log.bind(request_id=str(uuid4()), object=identifier)
-        resource = self.client.get_resource(identifier)
-        if resource.delete():
-            self.log.debug("Deleted resource from Fedora")
-            return True
-        self.log.error("Could not delete resource from Fedora")
-        return False
-
-    def check_fixity(self, identifier):
-        self.log = self.log.bind(request_id=str(uuid4()), object=identifier)
-        resource = self.client.get_resource(identifier)
-        return resource.fixity()

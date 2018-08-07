@@ -36,7 +36,7 @@ class FixityReport(Report):
         for r in resources:
             if r.__class__.__name__ == 'NonRDFSource':
                 print("Creating report item for {}".format(r.uri))
-                fixity = self.client.check_fixity(r.uri)
+                fixity = r.fixity()
                 FixityReportItem.objects.create(
                     report=self,
                     verdict=fixity['verdict'],
