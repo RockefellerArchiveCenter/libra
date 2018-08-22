@@ -8,6 +8,10 @@ if [ ! -f manage.py ]; then
   cd libra
 fi
 
+if [ ! -f libra/config.py ]; then
+    cp libra/config.py.example libra/config.py
+fi
+
 echo "Apply database migrations"
 python manage.py migrate
 
