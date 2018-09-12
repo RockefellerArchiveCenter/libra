@@ -21,14 +21,21 @@ or, if you wish to remove all local data:
       `docker-compose down -v`
 
 
-### Users
+## Users
 
 By default a new superuser is created. See `entrypoint.sh` for those users and associated credentials. THIS IS FOR TESTING PURPOSES ONLY, BE SURE TO CHANGE THIS IN PRODUCTION.
 
 
-### Routes
+## Usage
 
-A user interface with limited functionality is available at `/reports`.
+Reports can be created and scheduled either via a user interface or HTTP POST requests (see below). At regularly scheduled intervals, a cron job reviews all pending reports, and runs the reports whose `queued_time` is in the past.
+
+![Libra process diagram](reports.png)
+
+
+## Routes
+
+A user interface which supports creating, viewing and downloading of reports is available at `/reports`.
 
 | Method | URL | Parameters | Response  | Behavior  |
 |--------|-----|---|---|---|
