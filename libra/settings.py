@@ -27,7 +27,7 @@ SECRET_KEY = '3$k)1)qe3(31=9g+x&1#p1ns-__+nwthu40+s#ht-dylbh-3&+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['libra-web']
 
 
 # Application definition
@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'HOST': 'libra_db',
+        'HOST': 'libra-db',
         'PORT': 5432,
     }
 }

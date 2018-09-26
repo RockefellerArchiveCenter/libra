@@ -1,9 +1,11 @@
 version: '3'
 
 services:
-  libra_db:
+  libra-db:
     image: postgres:10.4
-  libra_web:
+    volumes:
+      - libradb:/var/lib/postgresql/data/
+  libra-web:
     build: .
     entrypoint: /code/entrypoint.sh
     volumes:
@@ -11,4 +13,7 @@ services:
     ports:
       - "8004:8004"
     depends_on:
-      - libra_db
+      - libra-db
+
+volumes:
+  libradb:
