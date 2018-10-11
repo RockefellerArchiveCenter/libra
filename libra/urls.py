@@ -40,7 +40,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^runreports/(?P<report>[a-z]+)/$', ReportRunView.as_view(), name='run-reports'),
+    url(r'^run-reports/(?P<report>[a-z]+)/$', ReportRunView.as_view(), name='run-reports'),
     url(r'^reports/', include('reports.urls')),
     url(r'^get-token/', obtain_jwt_token),
     url(r'^status/', include('health_check.api.urls')),
