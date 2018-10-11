@@ -3,14 +3,14 @@ import random
 import string
 import vcr
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
 from libra import settings
 from reports.cron import RunReports
 from reports.models import Report, FixityReportItem, FormatReportItem
-from reports.views import FixityReportViewSet, FormatReportViewSet
+from reports.views import FixityReportViewSet, FormatReportViewSet, ReportRunView
 
 reports_vcr = vcr.VCR(
     serializer='yaml',
@@ -25,6 +25,7 @@ reports_vcr = vcr.VCR(
 class ReportTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.client = Client()
         self.format_report_count = 4
         self.format_report_items_count = 25
         self.fixity_report_count = 2
@@ -93,8 +94,29 @@ class ReportTest(TestCase):
         self.assertEqual(len(Report.objects.filter(report_type='fixity')), self.fixity_report_count-1, "Wrong number of fixity reports created")
         self.assertEqual(len(Report.objects.filter(report_type='format')), self.format_report_count-1, "Wrong number of format reports created")
 
+    def run_endpoints(self):
+        print('*** Testing run endpoints ***')
+        with reports_vcr.use_cassette('run_reports.yml'):
+            for report_type in ['fixity', 'format']:
+                request = self.factory.post(reverse('run-reports', kwargs={"report": report_type}))
+                response = ReportRunView.as_view()(request, report=report_type)
+                self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+
+    def schema(self):
+        print('*** Getting schema view ***')
+        schema = self.client.get(reverse('schema-json', kwargs={"format": ".json"}))
+        self.assertEqual(schema.status_code, 200, "Wrong HTTP code")
+
+    def health_check(self):
+        print('*** Getting status view ***')
+        status = self.client.get(reverse('api_health_ping'))
+        self.assertEqual(status.status_code, 200, "Wrong HTTP code")
+
     def test_reports(self):
         self.create_reports()
         self.create_report_items()
         self.run_reports()
         self.delete_reports()
+        self.run_endpoints()
+        self.schema()
+        self.health_check()
