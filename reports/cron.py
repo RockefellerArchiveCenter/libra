@@ -2,7 +2,7 @@ from django.utils import timezone
 
 from django_cron import CronJobBase, Schedule
 
-from reports.models import FixityReport, FormatReport
+from reports.routines import ReportRunner
 
 
 class RunReports(CronJobBase):
@@ -12,10 +12,5 @@ class RunReports(CronJobBase):
     code = 'transfers.discover_transfers'
 
     def do(self):
-        current_time = timezone.now()
-        for report_type in [
-            FixityReport.objects.filter(process_status='queued', queued_time__lte=current_time),
-            FormatReport.objects.filter(process_status='queued', queued_time__lte=current_time)
-        ]:
-            for report in report_type:
-                report.run()
+        ReportRunner().run('fixity')
+        ReportRunner().run('format')

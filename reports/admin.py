@@ -3,13 +3,8 @@ from django.contrib import admin
 from reports.models import *
 
 
-@admin.register(FixityReport)
-class FixityReportAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(FormatReport)
-class FormatReportAdmin(admin.ModelAdmin):
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
     pass
 
 

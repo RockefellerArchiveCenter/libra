@@ -21,14 +21,9 @@ or, if you wish to remove all local data:
       `docker-compose down -v`
 
 
-## Users
-
-By default a new superuser is created. See `entrypoint.sh` for those users and associated credentials. THIS IS FOR TESTING PURPOSES ONLY, BE SURE TO CHANGE THIS IN PRODUCTION.
-
-
 ## Usage
 
-Reports can be created and scheduled either via a user interface or HTTP POST requests (see below). At regularly scheduled intervals, a cron job reviews all pending reports, and runs the reports whose `queued_time` is in the past.
+Reports can be created and scheduled either via a user interface or HTTP POST requests (see below). At regularly scheduled intervals (or when triggered via a POST request), a cron job reviews all pending reports, and runs the reports whose `queued_time` is in the past.
 
 ![Libra process diagram](reports.png)
 
@@ -47,6 +42,7 @@ A user interface which supports creating, viewing and downloading of reports is 
 |GET|/formats| |200|Returns a list of file format reports|
 |GET|/formats/{id}| |200|Returns an individual file format report|
 |DELETE|/formats/{id}| |200|Deletes an individual file format report|
+|POST|/run-reports/{report_type}| |200|Runs the reports specified by the `report_type`|
 |GET|/status||200|Returns the status of the microservice|
 |GET|/schema.json||200|Returns a JSON representation of the Open API schema for the service|
 

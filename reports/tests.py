@@ -3,14 +3,14 @@ import random
 import string
 import vcr
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
 from libra import settings
 from reports.cron import RunReports
-from reports.models import FixityReport, FormatReport, FixityReportItem, FormatReportItem
-from reports.views import FixityReportViewSet, FormatReportViewSet
+from reports.models import Report, FixityReportItem, FormatReportItem
+from reports.views import FixityReportViewSet, FormatReportViewSet, ReportRunView
 
 reports_vcr = vcr.VCR(
     serializer='yaml',
@@ -25,6 +25,7 @@ reports_vcr = vcr.VCR(
 class ReportTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.client = Client()
         self.format_report_count = 4
         self.format_report_items_count = 25
         self.fixity_report_count = 2
@@ -42,17 +43,16 @@ class ReportTest(TestCase):
             response = FixityReportViewSet.as_view(actions={"post": "create"})(request)
             print('Created fixity report {url}'.format(url=response.data['url']))
             self.assertEqual(response.status_code, 200, "Wrong HTTP code")
-        self.assertEqual(len(FixityReport.objects.all()), self.fixity_report_count, "Wrong number of fixity reports created")
-        self.assertEqual(len(FormatReport.objects.all()), self.format_report_count, "Wrong number of format reports created")
-        for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
-            for report in report_type:
-                self.assertEqual(report.process_status, 'queued', "Report process status not correctly set")
-                self.assertIsNot(report.start_time, False, "Report start time not added")
+        self.assertEqual(len(Report.objects.filter(report_type='fixity')), self.fixity_report_count, "Wrong number of fixity reports created")
+        self.assertEqual(len(Report.objects.filter(report_type='format')), self.format_report_count, "Wrong number of format reports created")
+        for report in Report.objects.all():
+            self.assertEqual(report.process_status, 'queued', "Report process status not correctly set")
+            self.assertIsNot(report.start_time, False, "Report start time not added")
 
     def create_report_items(self):
         print('*** Creating Report Items ***')
-        format_report = random.choice(FormatReport.objects.all())
-        fixity_report = random.choice(FixityReport.objects.all())
+        format_report = random.choice(Report.objects.filter(report_type='format'))
+        fixity_report = random.choice(Report.objects.filter(report_type='fixity'))
         for i in range(self.format_report_items_count):
             FormatReportItem.objects.create(
                 report=format_report,
@@ -67,23 +67,22 @@ class ReportTest(TestCase):
                 uri=''.join(random.choices(string.ascii_letters + string.digits, k=20)),
                 verdict=random.choice([True, False]),
             )
-        self.assertEqual(len(FixityReport.objects.all()), self.fixity_report_count, "Wrong number of fixity reports created")
-        self.assertEqual(len(FormatReport.objects.all()), self.format_report_count, "Wrong number of format reports created")
+        self.assertEqual(len(Report.objects.filter(report_type='fixity')), self.fixity_report_count, "Wrong number of fixity reports created")
+        self.assertEqual(len(Report.objects.filter(report_type='format')), self.format_report_count, "Wrong number of format reports created")
 
     def run_reports(self):
         print('*** Running Reports ***')
         with reports_vcr.use_cassette('run_reports.yml'):
             RunReports().do()
-        for report_type in [FixityReport.objects.all(), FormatReport.objects.all()]:
-            for report in report_type:
-                self.assertEqual(report.process_status, 'completed', 'Report was not completed')
-                self.assertNotEqual(report.start_time, None, 'Start time not added')
-                self.assertNotEqual(report.end_time, None, 'End time not added')
+        for report in Report.objects.all():
+            self.assertEqual(report.process_status, 'completed', 'Report was not completed')
+            self.assertNotEqual(report.start_time, None, 'Start time not added')
+            self.assertNotEqual(report.end_time, None, 'End time not added')
 
     def delete_reports(self):
         print('*** Deleting Reports ***')
-        format_report = random.choice(FormatReport.objects.all())
-        fixity_report = random.choice(FixityReport.objects.all())
+        format_report = random.choice(Report.objects.filter(report_type='format'))
+        fixity_report = random.choice(Report.objects.filter(report_type='fixity'))
         request = self.factory.delete(reverse('fixityreport-detail', kwargs={'pk': fixity_report.pk}), format='json')
         response = FixityReportViewSet.as_view(actions={"delete": "destroy"})(request, pk=fixity_report.pk)
         print('Deleted fixity report')
@@ -92,11 +91,32 @@ class ReportTest(TestCase):
         response = FormatReportViewSet.as_view(actions={"delete": "destroy"})(request, pk=format_report.pk)
         print('Deleted format report')
         self.assertEqual(response.status_code, 204, "Wrong HTTP code")
-        self.assertEqual(len(FixityReport.objects.all()), self.fixity_report_count-1, "Wrong number of fixity reports created")
-        self.assertEqual(len(FormatReport.objects.all()), self.format_report_count-1, "Wrong number of format reports created")
+        self.assertEqual(len(Report.objects.filter(report_type='fixity')), self.fixity_report_count-1, "Wrong number of fixity reports created")
+        self.assertEqual(len(Report.objects.filter(report_type='format')), self.format_report_count-1, "Wrong number of format reports created")
+
+    def run_endpoints(self):
+        print('*** Testing run endpoints ***')
+        with reports_vcr.use_cassette('run_reports.yml'):
+            for report_type in ['fixity', 'format']:
+                request = self.factory.post(reverse('run-reports', kwargs={"report": report_type}))
+                response = ReportRunView.as_view()(request, report=report_type)
+                self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+
+    def schema(self):
+        print('*** Getting schema view ***')
+        schema = self.client.get(reverse('schema-json', kwargs={"format": ".json"}))
+        self.assertEqual(schema.status_code, 200, "Wrong HTTP code")
+
+    def health_check(self):
+        print('*** Getting status view ***')
+        status = self.client.get(reverse('api_health_ping'))
+        self.assertEqual(status.status_code, 200, "Wrong HTTP code")
 
     def test_reports(self):
         self.create_reports()
         self.create_report_items()
         self.run_reports()
         self.delete_reports()
+        self.run_endpoints()
+        self.schema()
+        self.health_check()
