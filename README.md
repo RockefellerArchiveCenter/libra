@@ -29,7 +29,7 @@ Or, if you wish to remove all local data
 
 ## Usage
 
-Reports can be created and scheduled either via a user interface or HTTP POST requests (see below). At regularly scheduled intervals (or when triggered via a POST request), a cron job reviews all pending reports, and runs the reports whose `queued_time` is in the past.
+Reports can be created and scheduled either via the user interface available at `/reports` or HTTP POST requests (see below). At regularly scheduled intervals (or when triggered via a POST request), a cron job reviews all pending reports, and runs the reports whose `queued_time` is in the past.
 
 ![Libra process diagram](reports.png)
 
