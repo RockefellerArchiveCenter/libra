@@ -53,6 +53,10 @@ A user interface which supports creating, viewing and downloading of reports is 
 |GET|/schema.json||200|Returns a JSON representation of the Open API schema for the service|
 
 
+## Logging
+
+libra uses `structlog` to output structured JSON logs. Logging can be configured in `libra/settings.py`.
+
 ## License
 
 This code is released under an [MIT License](LICENSE).
