@@ -39,7 +39,7 @@ py==1.5.4
 pyfc4==0.1
 PyJWT==1.6.1
 pyparsing==2.2.0
-psycopg2-binary==2.7.4
+psycopg2==2.7.4
 pytest==3.6.3
 pytest-cov==2.5.1
 pytz==2018.4
